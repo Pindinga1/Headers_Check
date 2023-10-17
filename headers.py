@@ -34,8 +34,16 @@ def Headers(target, redirect):
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
-        print("Uso: python headers.py URL False/True , False para no redirecciones y True para redirecciones.")
+        print("Uso: python headers.py URL False/True, False para no redirecciones y True para redirecciones.")
     else:
         url = sys.argv[1]
-        redirect = sys.argv[2].lower().strip() == 'true'
+        redirect = sys.argv[2].lower()
+        if redirect == 'true':
+            redirect = True
+        elif redirect == 'false':
+            redirect = False
+        else:
+            print("El segundo argumento debe ser 'True' o 'False'.")
+            redirect = False
+
         Headers(url, redirect)
