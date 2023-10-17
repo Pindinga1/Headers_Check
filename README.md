@@ -1,6 +1,6 @@
 # Headers_Check
-<img src="https://i.imgur.com/LDRmfNM.png" width="480px" height="338px"></img>
 Script automatizado para verificar si un sitio web posee las cabeceras de seguridad.  
+<img src="https://i.imgur.com/LDRmfNM.png" width="480px" height="338px"></img>
 
 ***  
 # INSTALACIÓN
