@@ -1,7 +1,9 @@
 import requests, json, sys
 from colorama import Fore
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 # Consulta de cabeceras BY Pindinga1
-def Headers(target, redirect):
+def Headers(target, redirect, ssl):
     banner = """
    _____ ____  __  __ _____  _    _ _   _ ______ _______ 
   / ____/ __ \|  \/  |  __ \| |  | | \ | |  ____|__   __|
@@ -26,7 +28,7 @@ def Headers(target, redirect):
         count_absent = 0
         found = []
         not_found = []
-        r = requests.get(f'{target}', allow_redirects=redirect)
+        r = requests.get(f'{target}', allow_redirects=redirect, verify=ssl)
         resp_headers = r.headers
         status = r.status_code
         if r.status_code:
@@ -52,15 +54,22 @@ def Headers(target, redirect):
         else:
             print (Fore.RED + 'Error en la respuesta, codigo de error: [{status}]\n' + Fore.RESET)
     except requests.exceptions.RequestException as e:
-        # Capturar excepciones de solicitud, como problemas de conexión
-        print(Fore.RED + f'Error en la solicitud: {e}' + Fore.RESET)
+        if "CERTIFICATE_VERIFY_FAILED" in str(e):
+            print(Fore.RED + f'Error en la solicitud: {e}\n Intenta utilizar el argumento nossl\n Ejemplo: headers.py url True nossl' + Fore.RESET)
+        else:
+            print(Fore.RED + f'Error en la solicitud: {e}' + Fore.RESET)
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print("Uso: python headers.py URL False/True, False para no redirecciones y True para redirecciones.")
+    if len(sys.argv) < 3:
+        print("Uso: python headers.py URL False/True, False para no redirecciones y True para redirecciones\nPara deshabilitar SSL adicionar argumento nossl al final.")
     else:
         url = sys.argv[1]
         redirect = sys.argv[2].lower()
+        ssl = True  # Establecemos un valor predeterminado para ssl
+        if len(sys.argv) >= 4:
+            ssl_arg = sys.argv[3].lower()
+            if ssl_arg == 'nossl':
+                ssl = False
         if redirect == 'true':
             redirect = True
         elif redirect == 'false':
@@ -68,5 +77,6 @@ if __name__ == "__main__":
         else:
             print("El segundo argumento debe ser 'True' o 'False'.")
             redirect = False
+            ssl = True 
 
-        Headers(url, redirect)
+        Headers(url, redirect, ssl)
