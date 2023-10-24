@@ -2,7 +2,14 @@ import requests, json, sys
 from colorama import Fore
 # Consulta de cabeceras BY Pindinga1
 def Headers(target, redirect):
-    banner = '##################################\n#CONSULTA CABECERAS By Pindinga1 #\n##################################\n'
+    banner = """
+   _____ ____  __  __ _____  _    _ _   _ ______ _______ 
+  / ____/ __ \|  \/  |  __ \| |  | | \ | |  ____|__   __|
+ | |   | |  | | \  / | |__) | |  | |  \| | |__     | |   
+ | |   | |  | | |\/| |  ___/| |  | | . ` |  __|    | |   
+ | |___| |__| | |  | | |    | |__| | |\  | |____   | |   
+  \_____\____/|_|  |_|_|     \____/|_| \_|______|  |_|   
+"""
     print (Fore.LIGHTBLUE_EX + banner + Fore.RESET)
     print(Fore.CYAN + f'Realizando petición a {target}, espere un momento...\nSeguir Redirecciones: {redirect}' + Fore.RESET)
     try:
@@ -15,22 +22,38 @@ def Headers(target, redirect):
             "Permissions-Policy",
             "Strict-Transport-Security"
         ]
+        count_present = 0
+        count_absent = 0
+        found = []
+        not_found = []
         r = requests.get(f'{target}', allow_redirects=redirect)
         resp_headers = r.headers
         status = r.status_code
         if r.status_code:
-            print(Fore.CYAN + f'Codigo de respuesta: [{status}]\n' + Fore.RESET)
+            print(Fore.CYAN + f'Código de respuesta: [{status}]\n' + Fore.RESET)
             for i in security_headers_check:
                 if i in resp_headers:
-                    print (Fore.LIGHTGREEN_EX + f'Cabecera: {i}, Valor: {resp_headers[i]} | PRESENTE' + Fore.RESET)
+                    print (Fore.LIGHTGREEN_EX + f'[OK] Cabecera: {i}, Valor: {resp_headers[i]} | PRESENTE' + Fore.RESET)
+                    count_present += 1
+                    found.append(f'{i}')
                 else:
-                    print (Fore.RED + f'Cabecera {i} | NO PRESENTE :('  + Fore.RESET)
+                    print (Fore.LIGHTRED_EX + f'[NOK] Cabecera {i} | NO PRESENTE'  + Fore.RESET)
+                    count_absent += 1
+                    not_found.append(f'{i}')
+            print(Fore.LIGHTMAGENTA_EX + f'\n-------------------------------\n-------RESUMEN DE PRUEBA-------\n-------------------------------\nURL: {target}\n' + Fore.RESET)
+            print(Fore.LIGHTMAGENTA_EX + f'Cabeceras de seguridad encontradas:' + Fore.RESET + Fore.LIGHTGREEN_EX + f' [{count_present}]\n' + Fore.RESET + Fore.LIGHTMAGENTA_EX + f'-----------------------------------'+ Fore.RESET)
+            for i in found:
+                print(Fore.LIGHTGREEN_EX + f'[OK] {i}' + Fore.RESET)
+            print(Fore.LIGHTMAGENTA_EX + f'\nCabeceras de seguridad no encontradas:' + Fore.RESET + Fore.LIGHTRED_EX + f' [{count_absent}]\n' + Fore.RESET + Fore.LIGHTMAGENTA_EX + f'-----------------------------------'+ Fore.RESET)
+            for i in not_found:
+                print(Fore.LIGHTRED_EX + f'[NOK] {i}' + Fore.RESET)
+            print(Fore.LIGHTMAGENTA_EX + f'\n-----------------------------------' + Fore.RESET)
+            print(Fore.LIGHTBLUE_EX + f'ANÁLISIS FINALIZADO CORRECTAMENTE' + Fore.RESET)
         else:
             print (Fore.RED + 'Error en la respuesta, codigo de error: [{status}]\n' + Fore.RESET)
     except requests.exceptions.RequestException as e:
         # Capturar excepciones de solicitud, como problemas de conexión
         print(Fore.RED + f'Error en la solicitud: {e}' + Fore.RESET)
-
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
